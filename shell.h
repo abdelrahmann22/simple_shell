@@ -16,7 +16,7 @@ extern char **environ;
 
 #define BUFSIZE 256
 #define TOKSIZE 64
-#define PRINT(c) (write(STDOUT_FILENO, c, strlen(c))
+#define PRINT(c) (write(STDOUT_FILENO, c, strlen(c)))
 #define SUCCESS (1)
 #define FAIL (-1)
 #define NEUTRAL (0)
@@ -30,7 +30,6 @@ extern char **environ;
  * @cmd: the parsed command
  * @index: the index of the command
  * @oldpwd: the old pwd
- * 
  * Description: Global Data Structure
 */
 
@@ -50,7 +49,6 @@ typedef struct shl_data
  * struct builtin - builtin commands
  * @cmd: the command
  * @f: the function
- * 
  * Description: builtin commands
 */
 

@@ -5,7 +5,6 @@
 /**
  * change_dir - changes dir
  * @data: the data struct
- * 
  * Return: 0 on success, -1 on failure
  */
 
@@ -20,7 +19,7 @@ int change_dir(shl_t *data)
 	}
 	while (data->args[1][i])
 	{
-		if(_isalpha(data->args[1][i++]) < 0)
+		if (_isalpha(data->args[1][i++]) < 0)
 		{
 			data->error_msg = _strdup("cd: can't cd to \n");
 			return (FAIL);
@@ -34,7 +33,6 @@ int change_dir(shl_t *data)
 /**
  * display_help - displays help
  * @data: the data struct
- * 
  * Return: 0 on success, -1 on failure
 */
 
