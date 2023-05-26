@@ -62,36 +62,31 @@ typedef struct builtin
 	char *cmd;
 	int (*f)(shl_t *data);
 } blt_t;
-/* ----------Process prototype------------*/
+
 int read_line(shl_t *);
 int split_line(shl_t *);
 int parse_line(shl_t *);
 int process_cmd(shl_t *);
 
-/* ----------String prototype------------*/
 char *_strdup(char *str);
 char *_strcat(char *first, char *second);
 int _strlen(char *str);
 char *_strchr(char *str, char c);
 int _strcmp(char *s1, char *s2);
 
-/* ----------More String prototype-------*/
 char *_strcpy(char *dest, char *source);
 
-/* ----------Memory prototype------------*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
 char *_memset(char *s, char byt, unsigned int n);
 char *_memcpy(char *dest, char *src, unsigned int n);
 int free_data(shl_t *);
 
-/* ----------Tools prototype-------------*/
 void *fill_an_array(void *a, int el, unsigned int len);
 void signal_handler(int signo);
 char *_getenv(char *path_name);
 void index_cmd(shl_t *data);
 void array_rev(char *arr, int len);
 
-/* ----------More tools prototype--------*/
 char *_itoa(unsigned int n);
 int intlen(int num);
 int _atoi(char *c);
@@ -99,7 +94,6 @@ int print_error(shl_t *data);
 int write_history(shl_t *data);
 int _isalpha(int c);
 
-/* -------------Builtins-----------------*/
 int abort_prg(shl_t *data);
 int change_dir(shl_t *data);
 int display_help(shl_t *data);
