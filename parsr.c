@@ -14,11 +14,12 @@ int is_path_format(shl_t *data)
 	return (FAIL);
 }
 #define DELIMITER ":"
-
 /**
- * is_short_format - checks if the path is in the format of PATH
- * @data: the data struct
- * Return: 0 on success, -1 on failure 
+ * is_short_format - chekc if the given fikenname is short form
+ * @data: the data strucct pointer
+ *
+ * Return: (Success)
+ * ------- (Fail) otherwise
  */
 void is_short_format(shl_t *data)
 {
@@ -47,11 +48,12 @@ void is_short_format(shl_t *data)
 	free(_path);
 }
 #undef DELIMITER
-
 /**
- * is_builtin - checks if the command is a builtin
- * @data: the data struct
- * Return: 0 on success, -1 on failure 
+ * is_builtin - checks if the command is builtin
+ * @data: a pointer to the data structure
+ *
+ * Return: (Success) 0 is returned
+ * ------- (Fail) negative number will returned
  */
 int is_builtin(sh_t *data)
 {
