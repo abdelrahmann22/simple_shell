@@ -99,33 +99,33 @@ int read_line(shl_t *data)
 
 int split_line(shl_t *data)
 {
-	char *token, **tokens;
-	size_t size = BUFSIZE, index = 0;
-	int i;
+	char *token;
+	size_t size = TOKENSIZE, new_size, i = 0;
 
-	tokens = malloc(sizeof(char *) * size);
-	if (tokens == NULL)
+	if (_strcmp(data->line, "\n") == 0)
+		return (FAIL);
+	data->args = malloc(size * sizeof(char *));
+	if (data->args == NULL)
 		return (FAIL);
 	token = strtok(data->line, DELIMITER);
-	while (token != NULL)
+	if (token == NULL)
+		return (FAIL);
+	while (token)
 	{
-		tokens[index] = token;
-		index++;
-		if (index >= size)
+		data->args[i++] =  token;
+		if (i + 2 >= size)
 		{
-			size += BUFSIZE;
-			tokens = _realloc(tokens, size * sizeof(char *), size * sizeof(char *));
-			if (tokens == NULL)
+			new_size = size * 2;
+			data->args = _realloc(data->args, size * sizeof(char *),
+					new_size * sizeof(char *));
+			if (data->args == NULL)
 				return (FAIL);
+			size = new_size;
 		}
 		token = strtok(NULL, DELIMITER);
 	}
-	tokens[index] = NULL;
-	data->args = tokens;
-	for (i = 0; data->args[i] != NULL; i++)
-		;
-	data->index = i;
-	return (SUCCESS);
+	data->args[i] = NULL;
+	return (0);
 }
 #undef DELIMITER
 #define DELIMITER ":"
