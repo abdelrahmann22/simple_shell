@@ -9,14 +9,15 @@ int main(void)
 {
 	shl_t data;
 	int pl;
+
 	_memset((void *)&data, 0, sizeof(data));
 	signal(SIGINT, singal_hander);
-	while(1)
+	while (1)
 	{
 		index_cmd(&data);
 		if (read_line(&data) < 0)
 		{
-			if(isatty(STDIN_FILENO))
+			if (isatty(STDIN_FILENO))
 				PRINT("\n");
 			break;
 		}
@@ -66,7 +67,7 @@ int read_line(shl_t *data)
 	for (csr_ptr = data->line, end_ptr = end->line + size;;)
 	{
 		read_st = read(STDIN_FILENO, &c, 1);
-		if ( read_st == 0)
+		if (read_st == 0)
 			return (FAIL);
 		*csr_ptr++ = c;
 		if (c == '\n')
@@ -74,12 +75,12 @@ int read_line(shl_t *data)
 			*csr_ptr = '\0';
 			return (SUCCESS);
 		}
-		if(csr_ptr + 2 >= end_ptr)
+		if (csr_ptr + 2 >= end_ptr)
 		{
 			new_size = size * 2;
 			length = csr_ptr - data->line;
-			data->line = _realloc(data->line, size * sizeof(char), new_size * sizeof(char));
-			if(data->line == NULL)
+			data->line = _realloc(data->line, size, new_size * sizeof(char));
+			if (data->line == NULL)
 				return (FAIL);
 			size = new_size;
 			csr_ptr = data->line + length;
