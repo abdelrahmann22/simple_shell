@@ -3,7 +3,7 @@
  * is_path_format - checks if the path is in the format of PATH
  * @data: the data struct
  * Return: 0 on success, -1 on failure
-*/
+ */
 int is_path_format(shl_t *data)
 {
 	if (_strchar(data->args[0], '/') != 0)
@@ -19,7 +19,7 @@ int is_path_format(shl_t *data)
  * is_short_format - checks if the path is in the format of PATH
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
-*/
+ */
 void is_short_format(shl_t *data)
 {
 	char *path, *token, *_path;
@@ -52,7 +52,7 @@ void is_short_format(shl_t *data)
  * is_builtin - checks if the command is a builtin
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
-*/
+ */
 int is_builtin(sh_t *data)
 {
 	builtin_t bit[] = {
