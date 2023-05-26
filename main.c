@@ -166,22 +166,14 @@ int process_cmd(shl_t *data)
 	pid = fork();
 	if (pid == 0)
 	{
-		if (execve(data->args[0], data->args, environ) == -1)
-		{
-			print_error(data);
-			exit(EXIT_FAILURE);
-		}
-	}
-	else if (pid < 0)
-	{
-		print_error(data);
-		return (FAIL);
+		signal(SIGINT, SIG_DFL);
+		if (execve(data->cmd, data->args, environ) < 0)
+		data->error_msg = _strdup("not found\n");
+			return (FAIL);
 	}
 	else
 	{
-		do {
-			waitpid(pid, &status, WUNTRACED);
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		waitpid(pid, &status, WUNTRACED);
 	}
-	return (SUCCESS);
+	return (0);
 }
