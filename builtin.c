@@ -16,7 +16,7 @@ int change_dir(shl_t *data)
 	if (data->args[1] == NULL)
 	{
 		SETOWD(data->oldpwd);
-		if(chdir(home) < 0)
+		if (chdir(home) < 0)
 			return (FAIL);
 		return (SUCCESS);
 	}
@@ -38,7 +38,7 @@ int change_dir(shl_t *data)
 	else
 	{
 		SETOWD(data->oldpwd);
-		if(chdir(data->args[1]) < 0)
+		if (chdir(data->args[1]) < 0)
 			return (FAIL);
 	}
 	return (SUCCESS);
@@ -53,7 +53,7 @@ int change_dir(shl_t *data)
 int abort_prog(shl_t *data __attribute__((unused)))
 {
 	int code, i = 0;
-	
+
 	if (data->args[1] == NULL)
 	{
 		free_data(data);
