@@ -15,7 +15,7 @@ char *_strcat(char *dest, char *src)
 	len1 = _strlen(dest);
 	len2 = _strlen(src);
 	result = malloc(sizeof(char) * (len1 + len2 + 2));
-	if(!result)
+	if (!result)
 		return (NULL);
 	*result = '\0';
 	while (dest[i] != '\0')
@@ -59,7 +59,7 @@ int _strcmp(char *s1, char *s2)
 
 	while (s1[i] != '\0' && s2[i] != '\0')
 	{
-		if(s1[i] != s2[i])
+		if (s1[i] != s2[i])
 			return (s1[i] - s2[i]);
 		i++;
 	}
@@ -76,7 +76,7 @@ char *_strchr(char *str, char c)
 
 	while (str[i] != '\0')
 	{
-		if(str[i] == c)
+		if (str[i] == c)
 			return (str + i);
 		i++;
 	}
@@ -94,7 +94,7 @@ char *_strdup(char *str)
 
 	len = _strlen(str);
 	result = malloc(sizeof(char) * (len + 1));
-	if(!result)
+	if (!result)
 		return (NULL);
 	while (str[i] != '\0')
 	{
