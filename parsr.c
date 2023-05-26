@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * is_path_format - checks if the path is in the format of PATH=...
+ * is_path_format - checks if the path is in the format of PATH
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
 */
@@ -17,7 +17,7 @@ int is_path_format(shl_t *data)
 #define DELIMITER ":"
 
 /**
- * is_short_format - checks if the path is in the format of PATH=...
+ * is_short_format - checks if the path is in the format of PATH
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
 */
@@ -62,7 +62,8 @@ int is_builtin(sh_t *data)
 		{"cd", change_dir},
 		{NULL, NULL}
 	};
-	int i = 0; 
+	int i = 0;
+	
 	while (bit[i].cmd != NULL)
 	{
 		if (_strcmp(data->args[0], bit[i]->cmd) == 0)
