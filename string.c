@@ -68,6 +68,7 @@ int _strcmp(char *s1, char *s2)
 /**
  * _strchr- locates a character in a string
  * @str: the string to be duplicated
+ * @c: the character to be located
  * Return: (Success) a pointer to the duplicated char
 */
 char *_strchr(char *str, char c)
