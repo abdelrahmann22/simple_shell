@@ -4,8 +4,7 @@
  * is_path_format - checks if the path is in the format of PATH=...
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
- */
-
+*/
 int is_path_format(shl_t *data)
 {
 	if (_strchar(data->args[0], '/') != 0)
@@ -22,7 +21,6 @@ int is_path_format(shl_t *data)
  * @data: the data struct
  * Return: 0 on success, -1 on failure 
 */
-
 void is_short_form(shl_t *data)
 {
 	char *path, *token, *_path;
@@ -65,8 +63,7 @@ int is_builtin(sh_t *data)
 		{NULL, NULL}
 	};
 	int i = 0; 
-
-	while(bit[i].cmd != NULL)
+	while (bit[i].cmd != NULL)
 	{
 		if (_strcmp(data->args[0], bit[i]->cmd) == 0)
 		{
