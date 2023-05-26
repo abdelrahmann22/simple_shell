@@ -60,7 +60,11 @@ int display_help(shl_t *data)
 	PRINT("\n");
 	return (SUCCESS);
 }
-
+/**
+ * handle_builtin - handles builtin
+ * @data: the data struct
+ * Return: 0 on success, -1 on failure
+ */
 int handle_builtin(shl_t *data)
 {
 	builtin_t builtins[] = {
