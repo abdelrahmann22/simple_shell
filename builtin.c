@@ -44,8 +44,9 @@ int change_dir(shl_t *data)
 	return (SUCCESS);
 }
 #undef GETCWD
+
 /**
- * display_help - displays help
+ * abort_prog - aborts the program
  * @data: the data struct
  * Return: 0 on success, -1 on failure
 */
@@ -71,6 +72,11 @@ int abort_prog(shl_t *data __attribute__((unused)))
 	free_data(data);
 	exit(code);
 }
+/**
+ * display_help - displays help
+ * @data: the data struct
+ * Return: 0 on success, -1 on failure
+*/
 int display_help(shl_t *data)
 {
 	int fd, fw, rd = 1;
