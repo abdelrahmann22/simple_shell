@@ -11,7 +11,7 @@ int main(void)
 	int pl;
 
 	_memset((void *)&data, 0, sizeof(data));
-	signal(SIGINT, singal_hander);
+	signal(SIGINT, signal_handler);
 	while (1)
 	{
 		index_cmd(&data);
@@ -59,12 +59,12 @@ int read_line(shl_t *data)
 	char *csr_ptr, *end_ptr, c;
 	size_t size = BUFSIZE, read_st, length, new_size;
 
-	data->line = malloc(sizeof(char) * size);
+	data->line = malloc(size * sizeof(char));
 	if (data->line == NULL)
 		return (FAIL);
 	if (isatty(STDIN_FILENO))
 		PRINT(PROMPT);
-	for (csr_ptr = data->line, end_ptr = end->line + size;;)
+	for (csr_ptr = data->line, end_ptr = data->line + size;;)
 	{
 		read_st = read(STDIN_FILENO, &c, 1);
 		if (read_st == 0)
@@ -79,12 +79,13 @@ int read_line(shl_t *data)
 		{
 			new_size = size * 2;
 			length = csr_ptr - data->line;
-			data->line = _realloc(data->line, size, new_size * sizeof(char));
+			data->line = _realloc(data->line, size * sizeof(char),
+						new_size * sizeof(char));
 			if (data->line == NULL)
 				return (FAIL);
 			size = new_size;
-			csr_ptr = data->line + length;
 			end_ptr = data->line + size;
+			csr_ptr = data->line + length;
 		}
 	}
 }
@@ -136,7 +137,7 @@ int split_line(shl_t *data)
  * Return: 0 on success, -1 on failure
 */
 
-int parse_line(sh_t *data)
+int parse_line(shl_t *data)
 {
 	if (is_path_format(data) > 0)
 		return (SUCCESS);

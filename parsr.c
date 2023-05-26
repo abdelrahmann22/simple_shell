@@ -55,9 +55,9 @@ void is_short_format(shl_t *data)
  * Return: (Success) 0 is returned
  * ------- (Fail) negative number will returned
  */
-int is_builtin(sh_t *data)
+int is_builtin(shl_t *data)
 {
-	builtin_t bit[] = {
+	builtin_t blt[] = {
 		{"exit", abort_prog},
 		{"help", display_help},
 		{"cd", change_dir},
@@ -65,12 +65,10 @@ int is_builtin(sh_t *data)
 	};
 	int i = 0;
 
-	while (bit[i].cmd != NULL)
+	while ((blt + i)->cmd)
 	{
-		if (_strcmp(data->args[0], bit[i]->cmd) == 0)
-		{
+		if (_strcmp(data->args[0], (blt + i)->cmd) == 0)
 			return (SUCCESS);
-		}
 		i++;
 	}
 	return (NEUTRAL);

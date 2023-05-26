@@ -10,8 +10,50 @@
 
 int change_dir(shl_t *data)
 {
-	int cod, i = 0;
+	char *home;
 
+	home = _getenv("HOME");
+	if (data->args[1] == NULL)
+	{
+		SETOWD(data->oldpwd);
+		if(chdir(home) < 0)
+			return (FAIL);
+		return (SUCCESS);
+	}
+	if (_strcmp(data->args[1], "-" == 0))
+	{
+		if (data->oldpwd == NULL)
+		{
+			SETOWD(data->oldpwd);
+			if (chdir(home) < 0)
+				return (FAIL);
+		}
+		else
+		{
+			SETOWD(data->oldpwd);
+			if (chdir(data->oldpwd) < 0)
+				return (FAIL);
+		}
+	}
+	else
+	{
+		SETOWD(data->oldpwd);
+		if(chdir(data->args[1]) < 0)
+			return (FAIL);
+	}
+	return (SUCCESS);
+}
+#undef GETCWD
+/**
+ * display_help - displays help
+ * @data: the data struct
+ * Return: 0 on success, -1 on failure
+*/
+
+int abort_prog(shl_t *data __attribute__((unused)))
+{
+	int code, i = 0;
+	
 	if (data->args[1] == NULL)
 	{
 		free_data(data);
@@ -21,21 +63,14 @@ int change_dir(shl_t *data)
 	{
 		if (_isalpha(data->args[1][i++]) < 0)
 		{
-			data->error_msg = _strdup("cd: can't cd to \n");
+			data->error_msg = _strdup("exit: Illegal number: ");
 			return (FAIL);
 		}
 	}
-	cod = atoi(data->args[1]);
+	code = _atoi(data->args[1]);
 	free_data(data);
-	exit(cod);
+	exit(code);
 }
-
-/**
- * display_help - displays help
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
 int display_help(shl_t *data)
 {
 	int fd, fw, rd = 1;
@@ -75,10 +110,10 @@ int handle_builtin(shl_t *data)
 	};
 	int i = 0;
 
-	while (builtins[i]->cmd)
+	while ((builtins + i)->cmd)
 	{
-		if (_strcmp(data->args[0], builtins[i]->cmd) == 0)
-			return (builtins[i]->f(data));
+		if (_strcmp(data->args[0], (builtins + i)->cmd) == 0)
+			return ((builtins + i)->f(data));
 		i++;
 	}
 	return (FAIL);

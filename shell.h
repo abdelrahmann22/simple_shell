@@ -1,6 +1,7 @@
-#ifndef _SHELL_H_
-#define _SHELL_H_
+#ifndef SHELL_H
+#define SHELL_H
 
+/* header files */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,91 +13,102 @@
 #include <fcntl.h>
 #include <errno.h>
 
+/* Global variable */
 extern char **environ;
 
+/* Macros */
 #define BUFSIZE 256
-#define TOKSIZE 64
-#define PRINT(c) (write(STDOUT_FILENO, c, strlen(c)))
+#define TOKENSIZE 64
+#define PRINT(c) (write(STDOUT_FILENO, c, _strlen(c)))
+#define PROMPT "$ "
 #define SUCCESS (1)
 #define FAIL (-1)
 #define NEUTRAL (0)
 
-/**
- * struct shl_data - Global Data Structure
- * @line: the line input
- * @args: the arguments
- * @env: the environment
- * @error_msg: the error message
- * @cmd: the parsed command
- * @index: the index of the command
- * @oldpwd: the old pwd
- * Description: Global Data Structure
-*/
+/* Struct */
 
-typedef struct shl_data
+/**
+ * struct sh_data - Global data structure
+ * @line: the line input
+ * @args: the arguments token
+ * @error_msg: the global path
+ * @cmd: the parsed command
+ * @index: the command index
+ * @oldpwd: the old path visited
+ * @env: the environnment
+ *
+ * Description: A structure contains all the variables needed to manage
+ * the program, memory and accessability
+ */
+typedef struct sh_data
 {
 	char *line;
 	char **args;
-	char **env;
+	char *cmd;
 	char *error_msg;
-	char **cmd;
-	unsigned long int index;
 	char *oldpwd;
+	unsigned long int index;
+	char *env;
 } shl_t;
-
-
 /**
- * struct builtin - builtin commands
- * @cmd: the command
- * @f: the function
- * Description: builtin commands
-*/
-
+ * struct builtin - Manage the builtin functions
+ * @cmd: the command line on string form
+ * @f: the associated function
+ *
+ * Description: this struct made to manage builtins cmd
+ */
 typedef struct builtin
 {
 	char *cmd;
 	int (*f)(shl_t *data);
-} builtin_t;
-
+} blt_t;
+/* ----------Process prototype------------*/
 int read_line(shl_t *);
-int parse_line(shl_t *);
 int split_line(shl_t *);
+int parse_line(shl_t *);
 int process_cmd(shl_t *);
 
+/* ----------String prototype------------*/
 char *_strdup(char *str);
-char *_strcat(char *dest, char *src);
+char *_strcat(char *first, char *second);
 int _strlen(char *str);
+char *_strchr(char *str, char c);
 int _strcmp(char *s1, char *s2);
-char *_strchr(char *s, char c);
 
-char *_strcpy(char *dest, char *src);
+/* ----------More String prototype-------*/
+char *_strcpy(char *dest, char *source);
 
+/* ----------Memory prototype------------*/
 void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-char *memset(char *s, char b, unsigned int n);
+char *_memset(char *s, char byt, unsigned int n);
 char *_memcpy(char *dest, char *src, unsigned int n);
 int free_data(shl_t *);
 
+/* ----------Tools prototype-------------*/
 void *fill_an_array(void *a, int el, unsigned int len);
-void signal_handler(int sig);
+void signal_handler(int signo);
 char *_getenv(char *path_name);
 void index_cmd(shl_t *data);
 void array_rev(char *arr, int len);
 
-int _atoi(char *s);
+/* ----------More tools prototype--------*/
 char *_itoa(unsigned int n);
-int intlen(int n);
+int intlen(int num);
+int _atoi(char *c);
 int print_error(shl_t *data);
 int write_history(shl_t *data);
 int _isalpha(int c);
 
-int abort_prog(shl_t *data);
+/* -------------Builtins-----------------*/
+int abort_prg(shl_t *data);
 int change_dir(shl_t *data);
 int display_help(shl_t *data);
 int handle_builtin(shl_t *data);
 int check_builtin(shl_t *data);
 
-int is_path_format(char *data);
-void is_short_format(char *data);
+
+int is_path_form(shl_t *data);
+void is_short_form(shl_t *data);
 int is_builtin(shl_t *data);
 
 #endif
