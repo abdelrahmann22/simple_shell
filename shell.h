@@ -51,7 +51,7 @@ void sisifo(char *prompt, data_of_program *data);
 void handle_ctrl_c(int opr UNUSED);
 int _getline(data_of_program *data);
 int check_logic_ops(char *array_commands[], int i, char array_operators[]);
-void expand_variables(data_of_program *data);\
+void expand_variables(data_of_program *data);
 void expand_alias(data_of_program *data);
 int buffer_add(char *buffer, char *str_to_add);
 void tokenize(data_of_program *data);
@@ -90,4 +90,4 @@ int print_alias(data_of_program *data, char *alias);
 char *get_alias(data_of_program *data, char *alias);
 int set_alias(char *alias_string, data_of_program *data);
 
-#endif 
+#endif
