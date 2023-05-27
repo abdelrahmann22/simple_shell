@@ -56,8 +56,9 @@ char *get_alias(data_of_program *data, char *name)
 	{
 		if (str_compare(name, data->alias_list[i], alias_length) &&
 			data->alias_list[i][alias_length] == '=')
+			{
 			return (data->alias_list[i] + alias_length + 1);
-		}
+			}
 	}
 
 	return (NULL);
