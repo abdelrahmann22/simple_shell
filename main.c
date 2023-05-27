@@ -1,180 +1,119 @@
 #include "shell.h"
-
 /**
- * main - the main function
- * Return: 0 on success, -1 on failure
-*/
-
-int main(void)
+ * main - initialize the variables of the program
+ * @argc: number of values received from the command line
+ * @argv: values received from the command line
+ * @env: number of values received from the command line
+ * Return: zero on succes.
+ */
+int main(int argc, char *argv[], char *env[])
 {
-	shl_t data;
-	int pl;
+	data_of_program data_struct = {NULL}, *data = &data_struct;
+	char *prompt = "";
 
-	_memset((void *)&data, 0, sizeof(data));
-	signal(SIGINT, signal_handler);
-	while (1)
+	inicialize_data(data, argc, argv, env);
+
+	signal(SIGINT, handle_ctrl_c);
+
+	if (isatty(STDIN_FILENO) && isatty(STDOUT_FILENO) && argc == 1)
 	{
-		index_cmd(&data);
-		if (read_line(&data) < 0)
-		{
-			if (isatty(STDIN_FILENO))
-				PRINT("\n");
-			break;
-		}
-		if (split_line(&data) < 0)
-		{
-			free_data(&data);
-			continue;
-		}
-		pl = parse_line(&data);
-		if (pl == 0)
-		{
-			free_data(&data);
-			continue;
-		}
-		if (pl < 0)
-		{
-			print_error(&data);
-			continue;
-		}
-		if (process_cmd(&data) < 0)
-		{
-			print_error(&data);
-			break;
-		}
-		free_data(&data);
+		errno = 2;
+		prompt = PROMPT_MSG;
 	}
-	free_data(&data);
-	exit(EXIT_SUCCESS);
-}
-
-/**
- * read_line - reads the line
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
-int read_line(shl_t *data)
-{
-	char *csr_ptr, *end_ptr, c;
-	size_t size = BUFSIZE, read_st, length, new_size;
-
-	data->line = malloc(size * sizeof(char));
-	if (data->line == NULL)
-		return (FAIL);
-	if (isatty(STDIN_FILENO))
-		PRINT(PROMPT);
-	for (csr_ptr = data->line, end_ptr = data->line + size;;)
-	{
-		read_st = read(STDIN_FILENO, &c, 1);
-		if (read_st == 0)
-			return (FAIL);
-		*csr_ptr++ = c;
-		if (c == '\n')
-		{
-			*csr_ptr = '\0';
-			return (SUCCESS);
-		}
-		if (csr_ptr + 2 >= end_ptr)
-		{
-			new_size = size * 2;
-			length = csr_ptr - data->line;
-			data->line = _realloc(data->line, size * sizeof(char),
-						new_size * sizeof(char));
-			if (data->line == NULL)
-				return (FAIL);
-			size = new_size;
-			end_ptr = data->line + size;
-			csr_ptr = data->line + length;
-		}
-	}
-}
-
-#define DELIMITER " \t\n\a\r\v"
-
-/**
- * split_line - splits the line
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
-int split_line(shl_t *data)
-{
-	char *token;
-	size_t size = TOKENSIZE, new_size, i = 0;
-
-	if (_strcmp(data->line, "\n") == 0)
-		return (FAIL);
-	data->args = malloc(size * sizeof(char *));
-	if (data->args == NULL)
-		return (FAIL);
-	token = strtok(data->line, DELIMITER);
-	if (token == NULL)
-		return (FAIL);
-	while (token)
-	{
-		data->args[i++] =  token;
-		if (i + 2 >= size)
-		{
-			new_size = size * 2;
-			data->args = _realloc(data->args, size * sizeof(char *),
-					new_size * sizeof(char *));
-			if (data->args == NULL)
-				return (FAIL);
-			size = new_size;
-		}
-		token = strtok(NULL, DELIMITER);
-	}
-	data->args[i] = NULL;
+	errno = 0;
+	sisifo(prompt, data);
 	return (0);
 }
-#undef DELIMITER
-#define DELIMITER ":"
 
 /**
- * parse_line - parses the line
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
-int parse_line(shl_t *data)
+ * handle_ctrl_c - print the prompt in a new line
+ * when the signal SIGINT (ctrl + c) is send to the program
+ * @UNUSED: option of the prototype
+ */
+void handle_ctrl_c(int opr UNUSED)
 {
-	if (is_path_format(data) > 0)
-		return (SUCCESS);
-	if (is_builtin(data) > 0)
-	{
-		if (handle_builtin(data) < 0)
-			return (FAIL);
-		return (NEUTRAL);
-	}
-	is_short_format(data);
-	return (SUCCESS);
+	_print("\n");
+	_print(PROMPT_MSG);
 }
 
-#undef DELIMITER
-
 /**
- * process_cmd - process the command
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
-int process_cmd(shl_t *data)
+ * inicialize_data - inicialize the struct with the info of the program
+ * @data: pointer to the structure of data
+ * @argv: array of arguments pased to the program execution
+ * @env: environ pased to the program execution
+ * @argc: number of values received from the command line
+ */
+void inicialize_data(data_of_program *data, int argc, char *argv[], char **env)
 {
-	pid_t pid;
-	int status;
+	int i = 0;
 
-	pid = fork();
-	if (pid == 0)
-	{
-		signal(SIGINT, SIG_DFL);
-		if (execve(data->cmd, data->args, environ) < 0)
-		data->error_msg = _strdup("not found\n");
-			return (FAIL);
-	}
+	data->program_name = argv[0];
+	data->input_line = NULL;
+	data->command_name = NULL;
+	data->exec_counter = 0;
+	if (argc == 1)
+		data->file_descriptor = STDIN_FILENO;
 	else
 	{
-		waitpid(pid, &status, WUNTRACED);
+		data->file_descriptor = open(argv[1], O_RDONLY);
+		if (data->file_descriptor == -1)
+		{
+			_printe(data->program_name);
+			_printe(": 0: Can't open ");
+			_printe(argv[1]);
+			_printe("\n");
+			exit(127);
+		}
 	}
-	return (0);
+	data->tokens = NULL;
+	data->env = malloc(sizeof(char *) * 50);
+	if (env)
+	{
+		for (; env[i]; i++)
+		{
+			data->env[i] = str_duplicate(env[i]);
+		}
+	}
+	data->env[i] = NULL;
+	env = data->env;
+
+	data->alias_list = malloc(sizeof(char *) * 20);
+	for (i = 0; i < 20; i++)
+	{
+		data->alias_list[i] = NULL;
+	}
+}
+/**
+ * sisifo - its a infinite loop that shows the prompt
+ * @prompt: prompt to be printed
+ * @data: its a infinite loop that shows the prompt
+ */
+void sisifo(char *prompt, data_of_program *data)
+{
+	int error_code = 0, string_len = 0;
+
+	while (++(data->exec_counter))
+	{
+		_print(prompt);
+		error_code = string_len = _getline(data);
+
+		if (error_code == EOF)
+		{
+			free_all_data(data);
+			exit(errno);
+		}
+		if (string_len >= 1)
+		{
+			expand_alias(data);
+			expand_variables(data);
+			tokenize(data);
+			if (data->tokens[0])
+			{
+				error_code = execute(data);
+				if (error_code != 0)
+					_print_error(error_code, data);
+			}
+			free_recurrent_data(data);
+		}
+	}
 }

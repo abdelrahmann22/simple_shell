@@ -1,126 +1,134 @@
 #include "shell.h"
 
-#define SETOWD(V) (V = _strdup(_getenv("OLDPWD")))
-
 /**
- * change_dir - changes dir
- * @data: the data struct
- * Return: 0 on success, -1 on failure
+ * builtin_env - shows the environment where the shell runs
+ * @data: struct for the program's data
+ * Return: zero if sucess, or other number if its declared in the arguments
  */
-
-int change_dir(shl_t *data)
+int builtin_env(data_of_program *data)
 {
-	char *home;
+	int i;
+	char cpname[50] = {'\0'};
+	char *var_copy = NULL;
 
-	home = _getenv("HOME");
-	if (data->args[1] == NULL)
-	{
-		SETOWD(data->oldpwd);
-		if (chdir(home) < 0)
-			return (FAIL);
-		return (SUCCESS);
-	}
-	if (_strcmp(data->args[1], "-" == 0))
-	{
-		if (data->oldpwd == NULL)
-		{
-			SETOWD(data->oldpwd);
-			if (chdir(home) < 0)
-				return (FAIL);
-		}
-		else
-		{
-			SETOWD(data->oldpwd);
-			if (chdir(data->oldpwd) < 0)
-				return (FAIL);
-		}
-	}
+	if (data->tokens[1] == NULL)
+		print_environ(data);
 	else
 	{
-		SETOWD(data->oldpwd);
-		if (chdir(data->args[1]) < 0)
-			return (FAIL);
-	}
-	return (SUCCESS);
-}
-#undef GETCWD
-
-/**
- * abort_prog - aborts the program
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-
-int abort_prog(shl_t *data __attribute__((unused)))
-{
-	int code, i = 0;
-
-	if (data->args[1] == NULL)
-	{
-		free_data(data);
-		exit(errno);
-	}
-	while (data->args[1][i])
-	{
-		if (_isalpha(data->args[1][i++]) < 0)
+		for (i = 0; data->tokens[1][i]; i++)
 		{
-			data->error_msg = _strdup("exit: Illegal number: ");
-			return (FAIL);
+			if (data->tokens[1][i] == '=')
+			{
+				var_copy = str_duplicate(env_get_key(cpname, data));
+				if (var_copy != NULL)
+					env_set_key(cpname, data->tokens[1] + i + 1, data);
+				print_environ(data);
+				if (env_get_key(cpname, data) == NULL)
+				{
+					_print(data->tokens[1]);
+					_print("\n");
+				}
+				else
+				{
+					env_set_key(cpname, var_copy, data);
+					free(var_copy);
+				}
+				return (0);
+			}
+			cpname[i] = data->tokens[1][i];
 		}
+		errno = 2;
+		perror(data->command_name);
+		errno = 127;
 	}
-	code = _atoi(data->args[1]);
-	free_data(data);
-	exit(code);
+	return (0);
 }
-/**
- * display_help - displays help
- * @data: the data struct
- * Return: 0 on success, -1 on failure
-*/
-int display_help(shl_t *data)
-{
-	int fd, fw, rd = 1;
-	char c;
 
-	fd = open(data->args[1], O_RDONLY);
-	if (fd < 0)
-	{
-		data->error_msg = _strdup("help: no help topics match\n");
-		return (FAIL);
-	}
-	while (rd > 0)
-	{
-		rd = read(fd, &c, 1);
-		fw = write(STDOUT_FILENO, &c, 1);
-		if (fw < 0)
-		{
-			data->error_msg = _strdup("help: no help topics match\n");
-			return (FAIL);
-		}
-	}
-	PRINT("\n");
-	return (SUCCESS);
-}
 /**
- * handle_builtin - handles builtin
- * @data: the data struct
- * Return: 0 on success, -1 on failure
+ * builtin_set_env - ..
+ * @data: struct for the program's data
+ * Return: zero if sucess, or other number if its declared in the arguments
  */
-int handle_builtin(shl_t *data)
+int builtin_set_env(data_of_program *data)
 {
-	builtin_t builtins[] = {
-		{"cd", change_dir},
-		{"exit", abort_prog},
-		{"help", display_help},
-		{NULL, NULL}
-	};
+	if (data->tokens[1] == NULL || data->tokens[2] == NULL)
+		return (0);
+	if (data->tokens[3] != NULL)
+	{
+		errno = E2BIG;
+		perror(data->command_name);
+		return (5);
+	}
+
+	env_set_key(data->tokens[1], data->tokens[2], data);
+
+	return (0);
+}
+
+/**
+ * builtin_unset_env - ..
+ * @data: struct for the program's data'
+ * Return: ..
+ */
+int builtin_unset_env(data_of_program *data)
+{
+	/* validate args */
+	if (data->tokens[1] == NULL)
+		return (0);
+	if (data->tokens[2] != NULL)
+	{
+		errno = E2BIG;
+		perror(data->command_name);
+		return (5);
+	}
+	env_remove_key(data->tokens[1], data);
+
+	return (0);
+}
+
+/**
+ * builtin_exit - exit of the program with the status
+ * @data: struct for the program's data
+ * Return: zero if sucess, or other number if its declared in the arguments
+ */
+int builtin_exit(data_of_program *data)
+{
+	int i;
+
+	if (data->tokens[1] != NULL)
+	{
+		for (i = 0; data->tokens[1][i]; i++)
+			if ((data->tokens[1][i] < '0' || data->tokens[1][i] > '9')
+				&& data->tokens[1][i] != '+')
+			{
+				errno = 2;
+				return (2);
+			}
+		errno = _atoi(data->tokens[1]);
+	}
+	free_all_data(data);
+	exit(errno);
+}
+/**
+ * builtin_alias - add, remove or show aliases
+ * @data: struct for the program's data
+ * Return: zero if sucess, or other number if its declared in the arguments
+ */
+int builtin_alias(data_of_program *data)
+{
 	int i = 0;
 
-	while ((builtins + i)->cmd)
+	if (data->tokens[1] == NULL)
+		return (print_alias(data, NULL));
+
+	while (data->tokens[++i])
 	{
-		if (_strcmp(data->args[0], (builtins + i)->cmd) == 0)
-			return ((builtins + i)->f(data));
-		i++;
+		if (count_characters(data->tokens[i], "="))
+			set_alias(data->tokens[i], data);
+		else
+			print_alias(data, data->tokens[i]);
 	}
-	return (FAIL);
+
+	return (0);
 }
+

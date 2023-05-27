@@ -1,7 +1,6 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-/* header files */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,10 +12,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
-/* Global variable */
 extern char **environ;
 
-/* Macros */
 #define BUFSIZE 256
 #define TOKENSIZE 64
 #define PRINT(c) (write(STDOUT_FILENO, c, _strlen(c)))
@@ -24,8 +21,6 @@ extern char **environ;
 #define SUCCESS (1)
 #define FAIL (-1)
 #define NEUTRAL (0)
-
-/* Struct */
 
 /**
  * struct sh_data - Global data structure
