@@ -22,14 +22,14 @@ int execute(data_of_program *data)
 	{
 		pidd = fork();
 		if (pidd == -1)
-		{ 
+		{
 			perror(data->command_name);
 			exit(EXIT_FAILURE);
 		}
 		if (pidd == 0)
 		{
 			retval = execve(data->tokens[0], data->tokens, data->env);
-			if (retval == -1) 
+			if (retval == -1)
 				perror(data->command_name), exit(EXIT_FAILURE);
 		}
 		else
