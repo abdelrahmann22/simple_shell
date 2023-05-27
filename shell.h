@@ -1,103 +1,93 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <stdio.h>
+#include <stdio.h> /* for printf*/
+#include <unistd.h> /* for fork, execve*/
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <errno.h>
-
-extern char **environ;
-
-#define BUFSIZE 256
-#define TOKENSIZE 64
-#define PRINT(c) (write(STDOUT_FILENO, c, _strlen(c)))
-#define PROMPT "$ "
-#define SUCCESS (1)
-#define FAIL (-1)
-#define NEUTRAL (0)
+#include <string.h> /* for strtok*/
+#include <stddef.h>
+#include <errno.h> /* for errno and perror */
+#include <sys/types.h> /* for type pid */
+#include <sys/wait.h> /* for wait */
+#include <sys/stat.h> /* for use of stat function */
+#include <signal.h> /* for signal management */
+#include <fcntl.h> /* for open files*/
+#include "macro.h" /* for msg help and prompt */
+/**
+ * struct info- struct for the program's data
+ * @program_name: the name of the executable
+ * @input_line: pointer to the input read for _getline
+ * @command_name: pointer to the first command typed by the user
+ * @exec_counter: number of excecuted comands
+ * @file_descriptor: file descriptor to the input of commands
+ * @tokens: pointer to array of tokenized input
+ * @env: copy of the environ
+ * @alias_list: array of pointers with aliases.
+ */
+typedef struct info
+{
+	char *program_name;
+	char *input_line;
+	char *command_name;
+	int exec_counter;
+	int file_descriptor;
+	char **tokens;
+	char **env;
+	char **alias_list;
+} data_of_program;
 
 /**
- * struct sh_data - Global data structure
- * @line: the line input
- * @args: the arguments token
- * @error_msg: the global path
- * @cmd: the parsed command
- * @index: the command index
- * @oldpwd: the old path visited
- * @env: the environnment
- *
- * Description: A structure contains all the variables needed to manage
- * the program, memory and accessability
+ * struct builtins - struct for the builtins
+ * @builtin: the name of the builtin
+ * @function: the associated function to be called for each builtin
  */
-typedef struct sh_data
+typedef struct builtins
 {
-	char *line;
-	char **args;
-	char *cmd;
-	char *error_msg;
-	char *oldpwd;
-	unsigned long int index;
-	char *env;
-} shl_t;
-/**
- * struct builtin - Manage the builtin functions
- * @cmd: the command line on string form
- * @f: the associated function
- *
- * Description: this struct made to manage builtins cmd
- */
-typedef struct builtin
-{
-	char *cmd;
-	int (*f)(shl_t *data);
-} blt_t;
+	char *builtin;
+	int (*function)(data_of_program *data);
+} builtins;
+void inicialize_data(data_of_program *data, int arc, char *argv[], char **env);
+void sisifo(char *prompt, data_of_program *data);
+void handle_ctrl_c(int opr UNUSED);
+int _getline(data_of_program *data);
+int check_logic_ops(char *array_commands[], int i, char array_operators[]);
+void expand_variables(data_of_program *data);\
+void expand_alias(data_of_program *data);
+int buffer_add(char *buffer, char *str_to_add);
+void tokenize(data_of_program *data);
+char *_strtok(char *line, char *delim);
+int execute(data_of_program *data);
+int builtins_list(data_of_program *data);
+char **tokenize_path(data_of_program *data);
+int find_program(data_of_program *data);
+void free_array_of_pointers(char **directories);
+void free_recurrent_data(data_of_program *data);
+void free_all_data(data_of_program *data);
+int builtin_exit(data_of_program *data);
+int builtin_cd(data_of_program *data);
+int set_work_directory(data_of_program *data, char *new_dir);
+int builtin_help(data_of_program *data);
+int builtin_alias(data_of_program *data);
+int builtin_env(data_of_program *data);
+int builtin_set_env(data_of_program *data);
+int builtin_unset_env(data_of_program *data);
+char *env_get_key(char *name, data_of_program *data);
+int env_set_key(char *key, char *value, data_of_program *data);
+int env_remove_key(char *key, data_of_program *data);
+void print_environ(data_of_program *data);
+int _print(char *string);
+int _printe(char *string);
+int _print_error(int errorcode, data_of_program *data);
+int str_length(char *string);
+char *str_duplicate(char *string);
+int str_compare(char *string1, char *string2, int number);
+char *str_concat(char *string1, char *string2);
+void str_reverse(char *string);
+void long_to_string(long number, char *string, int base);
+int _atoi(char *s);
+int count_characters(char *string, char *character);
+int print_alias(data_of_program *data, char *alias);
+char *get_alias(data_of_program *data, char *alias);
+int set_alias(char *alias_string, data_of_program *data);
 
-int read_line(shl_t *);
-int split_line(shl_t *);
-int parse_line(shl_t *);
-int process_cmd(shl_t *);
-
-char *_strdup(char *str);
-char *_strcat(char *first, char *second);
-int _strlen(char *str);
-char *_strchr(char *str, char c);
-int _strcmp(char *s1, char *s2);
-
-char *_strcpy(char *dest, char *source);
-
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-char *_memset(char *s, char byt, unsigned int n);
-char *_memcpy(char *dest, char *src, unsigned int n);
-int free_data(shl_t *);
-
-void *fill_an_array(void *a, int el, unsigned int len);
-void signal_handler(int signo);
-char *_getenv(char *path_name);
-void index_cmd(shl_t *data);
-void array_rev(char *arr, int len);
-
-char *_itoa(unsigned int n);
-int intlen(int num);
-int _atoi(char *c);
-int print_error(shl_t *data);
-int write_history(shl_t *data);
-int _isalpha(int c);
-
-int abort_prg(shl_t *data);
-int change_dir(shl_t *data);
-int display_help(shl_t *data);
-int handle_builtin(shl_t *data);
-int check_builtin(shl_t *data);
-
-
-int is_path_form(shl_t *data);
-void is_short_form(shl_t *data);
-int is_builtin(shl_t *data);
-
-#endif
+#endif 
